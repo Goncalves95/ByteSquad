@@ -6,7 +6,7 @@ Bem-vindo ao repositório do **ByteSquad**! Este projeto é dedicado ao desenvol
 
 ## Objetivo
 
-O ByteSquad foi criado para demonstrar o uso avançado de captura de imagem ao vivo e processamento visual, utilizando C++ para lógica e algoritmos de detecção, e .NET com WinForms para construir uma interface gráfica intuitiva e responsiva.
+O ByteSquad foi criado para demonstrar o uso avançado de captura de imagem ao vivo e processamento visual, utilizando C# para lógica e algoritmos de detecção, e .NET com WinForms para construir uma interface gráfica intuitiva e responsiva.
 
 ---
 
