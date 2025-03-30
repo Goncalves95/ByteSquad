@@ -17,7 +17,7 @@ Para configurar o ambiente de desenvolvimento local, siga os passos abaixo.
 ### Pré-requisitos
 
 - **Git:** Instale e configure o [Git](https://git-scm.com/downloads) no seu sistema.
-- **Visual Studio:** Certifique-se de ter o [Visual Studio](https://visualstudio.microsoft.com/) instalado, com suporte para C++, .NET, e desenvolvimento para Windows Forms.
+- **Visual Studio:** Certifique-se de ter o [Visual Studio](https://visualstudio.microsoft.com/) instalado, com suporte para C#, .NET, e desenvolvimento para Windows Forms.
 - **Ambiente de Desenvolvimento:** Recomendamos usar o Visual Studio para facilitar o desenvolvimento e depuração do projeto.
 
 ### Instalando
