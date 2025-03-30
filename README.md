@@ -26,3 +26,50 @@ Para configurar o ambiente de desenvolvimento local, siga os passos abaixo.
 
    ```bash
    git clone https://github.com/Goncalves95/ByteSquad.git
+
+2. **Criar o branch:**
+
+   ```bash
+   git checkout -b <branche-name>
+
+3. **Adicionar Alterações ao branch:**
+
+   ```bash
+   git add .
+
+4. **Adicionar mensagem de commit ao teu branch:**
+
+   ```bash
+   git commit -m "<a-tua-mensagem>"
+
+5.**Fazer push para o main branch:**
+
+   ```bash
+   git push
+
+6.**Para ter as ultimas atualizações do main branch:**
+
+   ```bash
+   git pull
+
+7.**Para visualizar todos os branchs:**
+
+   ```bash
+   git branch
+
+8.**Para fazer delete de um branch local:**
+
+   ```bash
+   git branch -d <branch-name>
+
+7.**Para alterar um nome de um branch local:**
+
+   ```bash
+   git branch -m <colocar-o-novo-nome-do-branch>
+
+
+### Contacto
+
+Se tiverem alguma duvida, alguma situação nao exitem em me contactar Fernando Gonçalves. 
+
+
