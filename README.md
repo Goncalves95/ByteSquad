@@ -42,27 +42,27 @@ Para configurar o ambiente de desenvolvimento local, siga os passos abaixo.
    ```bash
    git commit -m "<a-tua-mensagem>"
 
-5.**Fazer push para o main branch:**
+5. **Fazer push para o main branch:**
 
    ```bash
    git push
 
-6.**Para ter as ultimas atualizações do main branch:**
+6. **Para ter as ultimas atualizações do main branch:**
 
    ```bash
    git pull
 
-7.**Para visualizar todos os branchs:**
+7. **Para visualizar todos os branchs:**
 
    ```bash
    git branch
 
-8.**Para fazer delete de um branch local:**
+8. **Para fazer delete de um branch local:**
 
    ```bash
    git branch -d <branch-name>
 
-7.**Para alterar um nome de um branch local:**
+7. **Para alterar um nome de um branch local:**
 
    ```bash
    git branch -m <colocar-o-novo-nome-do-branch>
