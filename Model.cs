@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Numerics;
 
 namespace ByteSquad
 {
 
-    // Representa o modelo da aplicação.
+    // Representa o Model aplicação.
     // Armazena, manipula e notifica sobre formas geométricas detectadas.
     public class Model
     {

@@ -5,6 +5,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using AForge.Video;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ByteSquad
 {
@@ -50,6 +52,14 @@ namespace ByteSquad
             try
             {
                 webcam.Cam_On();
+
+                // Espera 1.5 segundos para ver se frames chegam
+                // Isso é importante para garantir que a webcam está funcionando corretamente antes de continuar.
+                Thread.Sleep(1500);
+
+                if (!webcam.RecebeuFrame())
+                    throw new Exception("Problemas com a webcam, pode estar desligada.");
+
                 view.AtivarInterface();
                 view.MostrarMensagem("Bem-vindo! Webcam iniciada.");
                 Application.Run(view);
@@ -57,6 +67,8 @@ namespace ByteSquad
             catch (Exception ex)
             {
                 MessageBox.Show("Erro ao iniciar a WebCam: " + ex.Message);
+                view.MostrarMensagem("Erro ao iniciar a WebCam.");
+                Application.Exit();
             }
         }
 
@@ -85,25 +97,38 @@ namespace ByteSquad
         // Captura e processa a imagem atual, disparando a detecção de figura.
         // Mostra a imagem com contorno e a figura detectada na View.
         // Também abre uma nova janela de preview com a imagem processada.
-        private void TirarFoto()
+        public void TirarFoto()
         {
-            if (imagemAtual != null)
+            if (imagemAtual == null)
             {
-                var resultado = model.AnalisarImagem(imagemAtual); // retorna ResultadoDeteccao
+                view.MostrarMensagem("Nenhuma imagem disponível.");
+                return;
+            }
+
+            try
+            {
+                var resultado = model.AnalisarImagem(imagemAtual);
                 view.MostrarImagem(resultado.ImagemComContorno);
                 view.MostrarFiguraDetectada(resultado.FormaDetectada);
 
                 FotoPreview preview = new FotoPreview((Bitmap)resultado.ImagemComContorno.Clone());
                 preview.Show();
             }
+            catch (Exception ex)
+            {
+                view.MostrarMensagem("Erro ao processar a imagem: " + ex.Message);
+            }
         }
 
-
         // Encerramento do programa e desligamento da webcam.
-        private void EncerrarPrograma()
+        private async void EncerrarPrograma()
         {
-            webcam.Cam_Off();
+
             view.MostrarMensagem("Programa encerrado.");
+            await Task.Delay(2000); // Espera 2 segundos para mostrar a mensagem antes de fechar
+            webcam.Cam_Off();
+            Application.Exit();
+            
         }
     }
 }

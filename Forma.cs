@@ -1,3 +1,6 @@
+// =========================
+// Formas.cs (parte do componente Model)
+// =========================
 using System;
 using System.Numerics;
 

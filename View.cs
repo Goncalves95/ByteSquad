@@ -8,10 +8,9 @@ using System.Collections.Generic;
 
 namespace ByteSquad
 {
-    /// <summary>
-    /// Representa a interface gráfica da aplicação (camada View).
-    /// Dispara eventos que são tratados pelo Controller.
-    /// </summary>
+   
+    // Representa a interface gráfica da aplicação (camada View).
+    // Dispara eventos que são tratados pelo Controller.
     public class View : Form
     {
         // Eventos expostos pela View
@@ -28,11 +27,11 @@ namespace ByteSquad
 
         //Componentes da interface
         private ListBox listaFormas;
-        private Button btnNovaForma;
-        private Button btnCapturarImagem;
-        private PictureBox pictureBox;
-        private Label lblMensagem;
-        private Button btnSair;
+        private Button btnNovaForma; // Botão para adicionar nova forma
+        private Button btnCapturarImagem; // Botão para capturar imagem da webcam
+        private PictureBox pictureBox; // PictureBox para mostrar a imagem capturada da webcam
+        private Label lblMensagem; // Label para mostrar mensagens ao utilizador
+        private Button btnSair; // Botão para sair da aplicação
 
         //Construtor da View. Inicializa os componentes gráficos.
         public View()
