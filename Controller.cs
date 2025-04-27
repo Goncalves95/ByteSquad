@@ -1,84 +1,134 @@
+// =========================
+// Controller.cs
+// =========================
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 using AForge.Video;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ByteSquad
 {
+    
+    // Classe Controller: orquestra a interação entre View, Model e serviços técnicos (WebCam).
+    // Escuta eventos da View e do Model e responde de forma centralizada.
     public class Controller
     {
-        private Model model;
-        private View view;
+        private Model model; 
+        private View view;   
         private WebCam webcam;
-        private Bitmap imagemAtual;
+        private Bitmap imagemAtual; // Armazena a imagem atual da webcam
 
         public Controller()
         {
-            model = new Model();
+            model = new Model(); 
             webcam = new WebCam();
-            view = new View(this, model);
-            /*
-             * Assinando eventos para atualizar a interface gráfica
-             * quando uma nova forma for adicionada ou uma nova imagem for capturada.
-             */
+            view = new View();
+
+            // Conecta eventos do WebCam ao Controller
             webcam.FrameAtualizado += AtualizarImagem;
+
+            // Eventos do Model → View
+            model.ListaDeFormasAlteradas += () =>
+            {
+                var formas = model.ObterFormas();
+                view.AtualizarListaFormas(formas);
+            };
+
+            // Evento disparado quando uma nova forma é adicionada
             model.FormaAdicionada += view.OnFormaAdicionada;
+
+            // Eventos da View → Controller
+            view.BotaoNovaFormaClicado += (s, e) => CriarNovaForma();
+            view.BotaoCapturaImagemClicado += (s, e) => TirarFoto();
+            view.FormularioFechado += (s, e) => EncerrarPrograma();
+            view.BotaoSairClicado += (s, e) => EncerrarPrograma();
         }
-        /*
-         * Método para iniciar o programa.
-         * Liga a webcam, ativa a interface gráfica e exibe uma mensagem de boas-vindas.
-         */
+
+        // Inicializa a interface gráfica e a webcam.
         public void IniciarPrograma()
         {
             try
             {
                 webcam.Cam_On();
+
+                // Espera 1.5 segundos para ver se frames chegam
+                // Isso é importante para garantir que a webcam está funcionando corretamente antes de continuar.
+                Thread.Sleep(1500);
+
+                if (!webcam.RecebeuFrame())
+                    throw new Exception("Problemas com a webcam, pode estar desligada.");
+
                 view.AtivarInterface();
                 view.MostrarMensagem("Bem-vindo! Webcam iniciada.");
+                Application.Run(view);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Erro ao iniciar a WebCam: " + ex.Message);
+                view.MostrarMensagem("Erro ao iniciar a WebCam.");
+                Application.Exit();
             }
+        }
 
-            Application.Run(view);
-        }
-        /*
-         * Método para criar uma nova forma.
-         * Adiciona uma nova forma genérica à lista de formas e atualiza a interface gráfica.
-         */
-        public void CriarNovaForma()
+        // Responde ao clique do botão "Nova Forma" da View.
+        private void CriarNovaForma()
         {
-            model.AdicionarForma("Forma Genérica");
-            view.AtualizarListaFormas();
+            var formaGenerica = new Forma
+            {
+                TipoForma = FormasPossiveis.Desconhecida,
+                Largura = 100,
+                Altura = 100,
+                PontoBasilar = new System.Numerics.Vector2(0, 0)
+            };
+
+            model.AdicionarForma(formaGenerica);
         }
-        /*
-         * Método para atualizar a imagem capturada pela webcam.
-         * Esse método é chamado sempre que um novo frame é capturado pela webcam.
-         */
+
+        // Evento de frame novo da webcam — atualiza a imagem no PictureBox.
+        // Este evento é disparado sempre que um novo frame é capturado pela webcam.
         private void AtualizarImagem(object sender, NewFrameEventArgs eventArgs)
         {
             imagemAtual = (Bitmap)eventArgs.Frame.Clone();
             view.MostrarImagem(imagemAtual);
         }
-        /*
-         * Método para capturar uma foto da webcam.
-         * Esse método é chamado quando o botão "Tirar Foto" é pressionado.
-         */
+
+        // Captura e processa a imagem atual, disparando a detecção de figura.
+        // Mostra a imagem com contorno e a figura detectada na View.
+        // Também abre uma nova janela de preview com a imagem processada.
         public void TirarFoto()
         {
-            if (imagemAtual != null)
+            if (imagemAtual == null)
             {
-                view.MostrarImagem(imagemAtual);
-                var figura = model.AnalisarImagem(imagemAtual);
-                view.MostrarFiguraDetectada(figura);
+                view.MostrarMensagem("Nenhuma imagem disponível.");
+                return;
+            }
+
+            try
+            {
+                var resultado = model.AnalisarImagem(imagemAtual);
+                view.MostrarImagem(resultado.ImagemComContorno);
+                view.MostrarFiguraDetectada(resultado.FormaDetectada);
+
+                FotoPreview preview = new FotoPreview((Bitmap)resultado.ImagemComContorno.Clone());
+                preview.Show();
+            }
+            catch (Exception ex)
+            {
+                view.MostrarMensagem("Erro ao processar a imagem: " + ex.Message);
             }
         }
 
-        public void EncerrarPrograma()
+        // Encerramento do programa e desligamento da webcam.
+        private async void EncerrarPrograma()
         {
-            webcam.Cam_Off();
+
             view.MostrarMensagem("Programa encerrado.");
+            await Task.Delay(2000); // Espera 2 segundos para mostrar a mensagem antes de fechar
+            webcam.Cam_Off();
+            Application.Exit();
+            
         }
     }
 }
