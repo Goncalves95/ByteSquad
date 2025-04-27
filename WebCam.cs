@@ -1,22 +1,28 @@
+// =========================
+// WebCam.cs
+// =========================
 using AForge.Video;
 using AForge.Video.DirectShow;
 using System;
 
 namespace ByteSquad
 {
+    // Classe responsável por encapsular o acesso à webcam utilizando AForge.NET.
+    // Atua como um serviço técnico independente, comunicando-se via eventos.
+    // Permite que a View e o Controller se concentrem em suas responsabilidades sem se preocupar com detalhes de implementação da webcam.
+    // Utiliza eventos para notificar quando um novo frame é capturado, permitindo que outros componentes se inscrevam e respondam a esses eventos.
     public class WebCam
     {
         private VideoCaptureDevice videoSource;
         private FilterInfoCollection videoDevices;
-        /*
-         * Evento para notificar quando um novo frame é capturado.
-         * Esse evento é disparado quando um novo frame é capturado pela webcam.
-         */
+
+        // Evento disparado sempre que um novo frame é capturado pela webcam.
+        // Outros componentes (como o Controller) podem se inscrever neste evento.
+        // O evento é do tipo NewFrameEventHandler, que é um delegado fornecido pela biblioteca AForge.NET.
         public event NewFrameEventHandler FrameAtualizado;
-        /*
-         * Método para iniciar a webcam.
-         * Verifica se há dispositivos de vídeo disponíveis e inicia o primeiro encontrado.
-         */
+
+        // Inicializa e ativa a webcam. Se encontrar um dispositivo válido, começa a capturar frames.
+        // Caso contrário, lança uma exceção informando que não há webcams disponíveis.
         public void Cam_On()
         {
             videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
@@ -24,6 +30,8 @@ namespace ByteSquad
             if (videoDevices.Count > 0)
             {
                 videoSource = new VideoCaptureDevice(videoDevices[0].MonikerString);
+
+                // Inscreve-se no evento de novo frame e repassa para os ouvintes externos
                 videoSource.NewFrame += (s, e) => FrameAtualizado?.Invoke(s, e);
                 videoSource.Start();
             }
@@ -33,6 +41,7 @@ namespace ByteSquad
             }
         }
 
+        // Desativa a webcam com segurança, parando a captura de frames.
         public void Cam_Off()
         {
             if (videoSource != null && videoSource.IsRunning)
@@ -41,13 +50,12 @@ namespace ByteSquad
                 videoSource.WaitForStop();
             }
         }
-        /*
-         * Método para verificar se a webcam está ligada.
-         * Retorna true se a webcam estiver ligada, caso contrário, retorna false.
-         */
+
+        // Verifica se a webcam está ativa e capturando.
+        // Retorna true se a webcam estiver em execução, caso contrário, false.
         public bool Cam_Status()
         {
             return videoSource != null && videoSource.IsRunning;
         }
     }
-}
+} 

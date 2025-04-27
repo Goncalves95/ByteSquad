@@ -8,6 +8,8 @@ C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\ByteSquad.exe.config
 C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\ByteSquad.exe
 C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\ByteSquad.pdb
 C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\AForge.dll
+C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\AForge.Imaging.dll
+C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\AForge.Math.dll
 C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\AForge.Video.DirectShow.dll
 C:\Users\yin_c\Desktop\ByteSquad\bin\Debug\net472\AForge.Video.dll
 C:\Users\yin_c\Desktop\ByteSquad\obj\Debug\net472\ByteSquad.csproj.Up2Date

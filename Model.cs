@@ -1,38 +1,43 @@
+// =========================
+// Model.cs
+// =========================
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Numerics;
 
 namespace ByteSquad
 {
+
+    // Representa o modelo da aplicação.
+    // Armazena, manipula e notifica sobre formas geométricas detectadas.
     public class Model
     {
-        private List<string> formas = new List<string>();
+        private List<Forma> formas = new List<Forma>();
+        private DetectorDeFormas detector = new DetectorDeFormas();
 
-        /*Evento para notificar quando uma nova forma é adicionada*/
-        /*Esse evento é disparado quando uma nova forma é adicionada à lista de formas.*/
-        public delegate void FormaAdicionadaHandler(string forma);
-        public event FormaAdicionadaHandler FormaAdicionada;
+        public event Action<Forma> FormaAdicionada;
+        public event Action ListaDeFormasAlteradas;
 
-
-        /*Método para adicionar uma nova forma à lista de formas*/
-        public void AdicionarForma(string forma)
+        //Inicializa a lista de formas e o detector de formas.
+        public void AdicionarForma(Forma forma)
         {
             formas.Add(forma);
-            FormaAdicionada?.Invoke(forma); // Disparar evento
+            FormaAdicionada?.Invoke(forma);
+            ListaDeFormasAlteradas?.Invoke();
         }
 
-        public List<string> ObterFormas()
+        public List<Forma> ObterFormas()
         {
-            return formas;
+            return new List<Forma>(formas);
         }
 
-        /*Método de análise de imagem simulação*/
-        public string AnalisarImagem(Bitmap imagem)
-        {
-            /*Simulação de análise de imagem, falta implementar*/
-            string formaDetectada = "Circulo, que feio :p"; /*Simulação de forma detectada*/
-
-            AdicionarForma(formaDetectada);
-            return formaDetectada;
+        //Usa o DetectorDeFormas para identificar o tipo de forma na imagem.
+        public ResultadoDeteccao AnalisarImagem(Bitmap imagem)
+        {   
+            var resultado = detector.Detectar(imagem);
+            AdicionarForma(resultado.FormaDetectada);
+            return resultado;
         }
     }
 }
