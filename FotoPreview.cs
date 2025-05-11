@@ -6,26 +6,29 @@ using System.Windows.Forms;
 
 namespace ByteSquad
 {
-    //Janela auxiliar para exibir a imagem capturada da webcam em destaque.
-    public class FotoPreview : Form
+    namespace View
     {
-        public FotoPreview(Bitmap imagem)
+        // Janela auxiliar para exibir a imagem capturada da webcam em destaque.
+        public class FotoPreview : Form
         {
-            this.Text = "Foto Capturada";
-            this.Width = 500;
-            this.Height = 400;
-            this.StartPosition = FormStartPosition.CenterScreen;
-
-            // Cria um PictureBox para exibir a imagem capturada
-            PictureBox picture = new PictureBox
+            public FotoPreview(Bitmap imagem)
             {
-                Dock = DockStyle.Fill,
-                Image = imagem,
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BorderStyle = BorderStyle.FixedSingle
-            };
+                this.Text = "Foto Capturada";
+                this.Width = 500;
+                this.Height = 400;
+                this.StartPosition = FormStartPosition.CenterScreen;
 
-            this.Controls.Add(picture);
+                // Cria um PictureBox para exibir a imagem capturada
+                PictureBox picture = new PictureBox
+                {
+                    Dock = DockStyle.Fill,
+                    Image = imagem,
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    BorderStyle = BorderStyle.FixedSingle
+                };
+
+                this.Controls.Add(picture);
+            }
         }
     }
-} 
+}
