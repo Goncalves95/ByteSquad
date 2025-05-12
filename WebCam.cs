@@ -11,7 +11,7 @@ namespace ByteSquad
     // Atua como um serviço técnico independente, comunicando-se via eventos.
     // Permite que a View e o Controller se concentrem em suas responsabilidades sem se preocupar com detalhes de implementação da webcam.
     // Utiliza eventos para notificar quando um novo frame é capturado, permitindo que outros componentes se inscrevam e respondam a esses eventos.
-    public class WebCam
+    public class WebCam : IWebCam
     {
         private VideoCaptureDevice videoSource;
         private FilterInfoCollection videoDevices;
