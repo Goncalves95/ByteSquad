@@ -3,7 +3,7 @@
 // =========================
 using System;
 using System.Windows.Forms;
-using ByteSquad.Controller; // <- Importa o namespace onde está o ControllerNuclear
+using ByteSquad.Controller; 
 
 namespace ByteSquad
 {
