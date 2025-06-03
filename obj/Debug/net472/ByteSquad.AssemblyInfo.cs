@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ByteSquad")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18840bb53030ec16520a1ddb68befbee0dc65619")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b70175d6f62d23ba9e4b3d59b64aa6f59407e7be")]
 [assembly: System.Reflection.AssemblyProductAttribute("ByteSquad")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ByteSquad")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

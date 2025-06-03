@@ -1,5 +1,5 @@
 // =========================
-// WebCam.cs
+// WebCam.cs 
 // =========================
 using AForge.Video;
 using AForge.Video.DirectShow;
@@ -22,9 +22,6 @@ namespace ByteSquad
         // Outros componentes (como o Controller) podem se inscrever neste evento.
         // O evento é do tipo NewFrameEventHandler, que é um delegado fornecido pela biblioteca AForge.NET.
         public event NewFrameEventHandler FrameAtualizado;
-
-        public delegate void NotificarImagemCongelada(object sender, EventArgs e);
-        public event NotificarImagemCongelada ImagemCongelada;
 
         // Inicializa e ativa a webcam. Se encontrar um dispositivo válido, começa a capturar frames.
         // Caso contrário, lança uma exceção informando que não há webcams disponíveis.
