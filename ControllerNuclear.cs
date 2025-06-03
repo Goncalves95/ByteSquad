@@ -4,16 +4,14 @@ using System.Windows.Forms;
 using AForge.Video;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 using ByteSquad.Model;
 using ByteSquad.View;
-//using ByteSquad.Infra;
 
 namespace ByteSquad
 {
     namespace Controller
     {
-        
-
         // Classe Controller: orquestra a interação entre View, Model e serviços técnicos (WebCam).
         // Escuta eventos da View e do Model e responde de forma centralizada.
         public class ControllerNuclear
@@ -23,30 +21,43 @@ namespace ByteSquad
             private IWebCam webcam;
             private Bitmap imagemAtual; // Armazena a imagem atual da webcam
 
+            private ResultadoDeteccao ultimaFormaDetectada;
+
             public ControllerNuclear()
             {
                 model = new ModelNuclear();
                 webcam = new WebCam();
                 view = new ViewNuclear();
 
+                model.CarregarFormasDetectadasDeFicheiro("formas_detectadas.txt");
+                model.CarregarFormasConfirmadasDeFicheiro("formas_confirmadas.txt");
+
+
                 // Conecta eventos do WebCam ao Controller
                 webcam.FrameAtualizado += AtualizarImagem;
 
-                // Eventos do Model → View
-                model.ListaDeFormasAlteradas += () =>
+                // Subscreve-se ao evento ListaDeFormasAlteradas do Model.
+                // Esse evento é disparado sempre que uma forma é detectada ou confirmada.
+                model.ListaDeFormasAlteradas += (sender, e) =>
                 {
                     var formas = model.ObterFormas();
                     view.AtualizarListaFormas(formas);
+
+                    if (e.TipoAcao == "detectada")
+                        view.MostrarMensagem("Nova forma detectada: " + e.Forma);
+                    else if (e.TipoAcao == "confirmada")
+                        view.MostrarMensagem("Forma confirmada e guardada: " + e.Forma);
                 };
 
-                // Evento disparado quando uma nova forma é adicionada
-                model.FormaAdicionada += view.OnFormaAdicionada;
 
                 // Eventos da View → Controller
                 view.BotaoNovaFormaClicado += (s, e) => CriarNovaForma();
                 view.BotaoCapturaImagemClicado += (s, e) => TirarFoto();
                 view.FormularioFechado += (s, e) => EncerrarPrograma();
                 view.BotaoSairClicado += (s, e) => EncerrarPrograma();
+                view.BotaoVerFormasConfirmadasClicado += (s, e) => AbrirFicheiroFormasConfirmadas();
+                view.BotaoCarregarImagemClicado += (s, e) => CarregarImagemManual();
+
             }
 
             // Inicializa a interface gráfica e a webcam.
@@ -78,14 +89,29 @@ namespace ByteSquad
             // Responde ao clique do botão "Nova Forma" da View.
             private void CriarNovaForma()
             {
-                var formaGenerica = new FormaDesconhecida
+                // Verifica se há uma forma detectada na última foto tirada
+                if (ultimaFormaDetectada?.FormaDetectada == null)
                 {
-                    Largura = 100,
-                    Altura = 100,
-                    PontoBasilar = new System.Numerics.Vector2(0, 0)
-            };
+                    MessageBox.Show("Tire uma foto antes de adicionar uma forma.");
+                    return;
+                } 
 
-                model.AdicionarForma(formaGenerica);
+                var forma = ultimaFormaDetectada.FormaDetectada;
+
+                 // Verifica se é forma desconhecida
+                if (forma.GetType().Name == "FormaDesconhecida")
+                {
+                    view.MostrarMensagem("Não é possível guardar uma forma desconhecida.");
+                    return;
+                }  
+
+                // Adiciona a forma ao modelo → isto dispara o evento FormaAdicionada
+                model.AdicionarFormaConfirmada(forma);
+                view.MostrarMensagem($"Forma guardada com sucesso: {forma}");
+
+
+                // Limpar o estado após adicionar
+                ultimaFormaDetectada = null;
             }
 
             // Evento de frame novo da webcam — atualiza a imagem no PictureBox.
@@ -115,12 +141,77 @@ namespace ByteSquad
 
                     FotoPreview preview = new FotoPreview((Bitmap)resultado.ImagemComContorno.Clone());
                     preview.Show();
+                    ultimaFormaDetectada = resultado; // Armazena o resultado para uso posterior
                 }
                 catch (Exception ex)
                 {
                     view.MostrarMensagem("Erro ao processar a imagem: " + ex.Message);
                 }
             }
+
+            // Abre o ficheiro de formas confirmadas/guardadas, se existir.
+            private void AbrirFicheiroFormasConfirmadas()
+            {
+                string caminho = "formas_confirmadas.txt";
+
+                if (File.Exists(caminho))
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
+                        {
+                            FileName = caminho,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        view.MostrarMensagem("Não foi possível abrir o ficheiro: " + ex.Message);
+                    }
+                }
+                else
+                {
+                    view.MostrarMensagem("Ficheiro 'formas_confirmadas.txt' não encontrado.");
+                }
+            }
+
+            private void CarregarImagemManual()
+            {
+                using (OpenFileDialog dialog = new OpenFileDialog())
+                {
+                    dialog.Filter = "Imagens (*.bmp;*.jpg;*.png)|*.bmp;*.jpg;*.png";
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        try
+                        {
+                        using (var original = new Bitmap(dialog.FileName))
+                        {
+                            // Converte para 24bppRgb (compatível com filtros da AForge)
+                            Bitmap imagemCarregada = new Bitmap(original.Width, original.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                            using (Graphics g = Graphics.FromImage(imagemCarregada))
+                            {
+                                g.DrawImage(original, 0, 0, original.Width, original.Height);
+                            }
+
+                        imagemAtual = imagemCarregada;
+
+                    var resultado = model.AnalisarImagem(imagemCarregada);
+                    view.MostrarImagem(resultado.ImagemComContorno);
+                    view.MostrarFiguraDetectada(resultado.FormaDetectada);
+
+                    FotoPreview preview = new FotoPreview((Bitmap)resultado.ImagemComContorno.Clone());
+                    preview.Show();
+                    ultimaFormaDetectada = resultado;
+                }
+            }
+            catch (Exception ex)
+            {
+                view.MostrarMensagem("Erro ao carregar a imagem: " + ex.Message);
+            }
+        }
+    }
+}
+
 
             // Encerramento do programa e desligamento da webcam.
             private async void EncerrarPrograma()

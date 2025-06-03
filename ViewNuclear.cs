@@ -21,15 +21,19 @@ namespace ByteSquad
             public event EventHandler BotaoNovaFormaClicado;
 
             // Disparado quando o utilizador clica no botão "Tirar Foto".
-    
             public event EventHandler BotaoCapturaImagemClicado;
 
             // Disparado quando o utilizador clica no botão "Sair".
             public event EventHandler BotaoSairClicado;
 
-         
             // Disparado quando o formulário principal é fechado.
             public event EventHandler FormularioFechado;
+            
+            // Disparado quando o utilizador clica no botão "Ver Formas Guardadas".
+            public event EventHandler BotaoVerFormasConfirmadasClicado;
+            // Disparado quando o utilizador clica no botão "Carregar Imagem".
+            public event EventHandler BotaoCarregarImagemClicado;
+
 
             // Componentes da interface
             private ListBox listaFormas;
@@ -38,6 +42,7 @@ namespace ByteSquad
             private PictureBox pictureBox;
             private Label lblMensagem;
             private Button btnSair;
+            private Button btnCarregarImagem; // Botão para carregar imagem de ficheiro
 
      
             // Construtor da View. Inicializa os componentes gráficos.
@@ -52,7 +57,7 @@ namespace ByteSquad
             {
                 this.Text = "ByteSquad - Webcam Viewer";
                 this.Width = 500;
-                this.Height = 400;
+                this.Height = 450;
                 this.FormClosing += (s, e) => FormularioFechado?.Invoke(this, EventArgs.Empty);
             }
 
@@ -72,7 +77,7 @@ namespace ByteSquad
                     SizeMode = PictureBoxSizeMode.StretchImage
                 };
 
-                btnNovaForma = new Button() { Text = "Nova Forma", Top = 290, Left = 10, Width = 150 };
+                btnNovaForma = new Button() { Text = "Guardar Forma", Top = 290, Left = 10, Width = 150 };
                 btnCapturarImagem = new Button() { Text = "Tirar Foto", Top = 290, Left = 170, Width = 150 };
                 lblMensagem = new Label() { Top = 330, Left = 10, Width = 460 };
 
@@ -80,8 +85,23 @@ namespace ByteSquad
                 btnNovaForma.Click += (s, e) => BotaoNovaFormaClicado?.Invoke(this, EventArgs.Empty);
                 btnCapturarImagem.Click += (s, e) => BotaoCapturaImagemClicado?.Invoke(this, EventArgs.Empty);
 
-                btnSair = new Button() { Text = "Sair", Top = 290, Left = 330, Width = 100 };
+
+                // Botão para ver formas confirmadas/histórico
+                Button btnVerFormasConfirmadas = new Button() { Text = "Histórico", Top = 290, Left = 330, Width = 140 };
+                btnVerFormasConfirmadas.Click += (s, e) => BotaoVerFormasConfirmadasClicado?.Invoke(this, EventArgs.Empty);
+                this.Controls.Add(btnVerFormasConfirmadas);
+
+                // Botão para carregar imagem de ficheiro
+                btnCarregarImagem = new Button() { Text = "Carregar Imagem", Top = 360, Left = 170, Width = 150 };
+                btnCarregarImagem.Click += (s, e) => BotaoCarregarImagemClicado?.Invoke(this, EventArgs.Empty);
+                this.Controls.Add(btnCarregarImagem);
+
+                // Botão para sair da aplicação
+                btnSair = new Button() { Text = "Sair", Top = 360, Left = 330, Width = 140, FlatStyle = FlatStyle.Flat, UseVisualStyleBackColor = false  };
+                btnSair.FlatAppearance.BorderColor = Color.Red;
+                btnSair.FlatAppearance.BorderSize = 2;
                 btnSair.Click += (s, e) => BotaoSairClicado?.Invoke(this, EventArgs.Empty);
+
 
                 // Adiciona os controles à interface
                 this.Controls.Add(listaFormas);
@@ -90,6 +110,9 @@ namespace ByteSquad
                 this.Controls.Add(btnCapturarImagem);
                 this.Controls.Add(lblMensagem);
                 this.Controls.Add(btnSair);
+
+                // Definir foco inicial no botão "Tirar Foto"
+                this.ActiveControl = btnCapturarImagem;
             }
 
 
@@ -119,12 +142,6 @@ namespace ByteSquad
                 lblMensagem.Text = mensagem;
             }
 
-    
-            // Trata o evento do Model que informa que uma forma foi adicionada.
-            public void OnFormaAdicionada(IForma forma)
-            {
-                listaFormas.Items.Add("Nova forma detectada: " + forma);
-            }
         }
     }
 }

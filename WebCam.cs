@@ -1,5 +1,5 @@
 // =========================
-// WebCam.cs
+// WebCam.cs 
 // =========================
 using AForge.Video;
 using AForge.Video.DirectShow;
@@ -26,6 +26,7 @@ namespace ByteSquad
         // Inicializa e ativa a webcam. Se encontrar um dispositivo válido, começa a capturar frames.
         // Caso contrário, lança uma exceção informando que não há webcams disponíveis.
         // Inicia a webcam com tratamento de exceções.
+
         public void Cam_On()
         {
             try
@@ -82,5 +83,6 @@ namespace ByteSquad
         {
             return recebeuFrame;
         }
+
     }
 } 

@@ -1,5 +1,5 @@
 // =========================
-// FotoPreview.cs
+// FotoPreview.cs 
 // =========================
 using System.Drawing;
 using System.Windows.Forms;
