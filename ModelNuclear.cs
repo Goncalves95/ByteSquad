@@ -22,7 +22,9 @@ namespace ByteSquad
             private IDetectorDeFormas detector = new DetectorDeFormas();
 
             // Evento disparado quando a lista de formas é alterada.
-            public event Action ListaDeFormasAlteradas;
+            //public event Action ListaDeFormasAlteradas;
+            public delegate void NotificarListaDeFormasAlteradas(object sender, FormaEventArgs e);
+            public event NotificarListaDeFormasAlteradas ListaDeFormasAlteradas;
 
             private List<IForma> formasDetectadas = new List<IForma>();
             private List<IForma> formasConfirmadas = new List<IForma>();
@@ -35,14 +37,19 @@ namespace ByteSquad
             {
                 formasConfirmadas.Add(forma);
                 GuardarFormaEmFicheiro(CaminhoConfirmadas,forma); // Guarda a forma confirmada em ficheiro
-                ListaDeFormasAlteradas?.Invoke(); 
+                ListaDeFormasAlteradas?.Invoke(this, new FormaEventArgs("confirmada", forma));
 
             }
 
             // Retorna uma cópia da lista atual de formas.
             public List<IForma> ObterFormas()
             {
-                return new List<IForma>(formas);
+                return new List<IForma>(formasConfirmadas);
+            }
+            
+            public List<IForma> ObterFormasDetectadas()
+            {
+                return new List<IForma>(formasDetectadas);
             }
 
             // Usa o DetectorDeFormas para identificar o tipo de forma na imagem.
@@ -52,10 +59,23 @@ namespace ByteSquad
                 var resultado = detector.Detectar(imagem);
                 formasDetectadas.Add(resultado.FormaDetectada); // Só adiciona à lista de detetadas
 
-                GuardarFormaEmFicheiro(CaminhoDetectadas,resultado.FormaDetectada);
+                GuardarFormaEmFicheiro(CaminhoDetectadas, resultado.FormaDetectada);
+                // Dispara o evento com a forma detectada
+                ListaDeFormasAlteradas?.Invoke(this, new FormaEventArgs("detectada", resultado.FormaDetectada));
 
-                ListaDeFormasAlteradas?.Invoke(); // Atualiza a view se quiser mostrar as detetadas
                 return resultado;
+            }
+
+            public class FormaEventArgs : EventArgs
+            {
+                public string TipoAcao { get; }
+                public IForma Forma { get; }
+
+                public FormaEventArgs(string tipoAcao, IForma forma)
+                {
+                TipoAcao = tipoAcao;
+                Forma = forma;
+                }
             }
 
         

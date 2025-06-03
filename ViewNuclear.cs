@@ -35,7 +35,6 @@ namespace ByteSquad
             public event EventHandler BotaoCarregarImagemClicado;
 
 
-
             // Componentes da interface
             private ListBox listaFormas;
             private Button btnNovaForma;
@@ -44,7 +43,6 @@ namespace ByteSquad
             private Label lblMensagem;
             private Button btnSair;
             private Button btnCarregarImagem; // Botão para carregar imagem de ficheiro
-
 
      
             // Construtor da View. Inicializa os componentes gráficos.
@@ -104,7 +102,6 @@ namespace ByteSquad
                 btnSair.FlatAppearance.BorderSize = 2;
                 btnSair.Click += (s, e) => BotaoSairClicado?.Invoke(this, EventArgs.Empty);
 
-                
 
                 // Adiciona os controles à interface
                 this.Controls.Add(listaFormas);

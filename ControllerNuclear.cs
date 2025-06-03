@@ -36,12 +36,19 @@ namespace ByteSquad
                 // Conecta eventos do WebCam ao Controller
                 webcam.FrameAtualizado += AtualizarImagem;
 
-                // Eventos do Model → View
-                model.ListaDeFormasAlteradas += () =>
+                // Subscreve-se ao evento ListaDeFormasAlteradas do Model.
+                // Esse evento é disparado sempre que uma forma é detectada ou confirmada.
+                model.ListaDeFormasAlteradas += (sender, e) =>
                 {
                     var formas = model.ObterFormas();
                     view.AtualizarListaFormas(formas);
+
+                    if (e.TipoAcao == "detectada")
+                        view.MostrarMensagem("Nova forma detectada: " + e.Forma);
+                    else if (e.TipoAcao == "confirmada")
+                        view.MostrarMensagem("Forma confirmada e guardada: " + e.Forma);
                 };
+
 
                 // Eventos da View → Controller
                 view.BotaoNovaFormaClicado += (s, e) => CriarNovaForma();

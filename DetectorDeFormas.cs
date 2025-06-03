@@ -15,11 +15,9 @@ namespace ByteSquad
 {
     namespace Model
     {
-        // Responsável por analisar uma imagem e detectar o tipo de forma geométrica presente.
-        // Desenha os contornos automaticamente na imagem original.
+        // Responsável por analisar uma imagem e detectar a melhor forma geométrica presente.
         public class DetectorDeFormas : IDetectorDeFormas
         {
-            // Processa a imagem, desenha os contornos e retorna a forma detectada e a imagem modificada.
             public ResultadoDeteccao Detectar(Bitmap imagemOriginal)
             {
                 Bitmap imagem = (Bitmap)imagemOriginal.Clone();
@@ -29,18 +27,12 @@ namespace ByteSquad
                 Bitmap grayImage = grayFilter.Apply(imagem);
 
                 // 2. Suavizar imagem
-                Median medianFilter = new Median();
-                medianFilter.ApplyInPlace(grayImage);
+                new Median().ApplyInPlace(grayImage);
 
                 // 3. Binarizar imagem
-                Threshold thresholdFilter = new Threshold(120);
-                thresholdFilter.ApplyInPlace(grayImage);
+                new Threshold(120).ApplyInPlace(grayImage);
+                new Invert().ApplyInPlace(grayImage);
 
-                // 3.1 Aplicar filtro de inversão para destacar os objetos
-                Invert invertFilter = new Invert();
-                invertFilter.ApplyInPlace(grayImage);
-
-                // DEBUG: Salva a imagem binarizada para análise
                 grayImage.Save("debug_binarizada.bmp");
 
                 // 4. Detectar blobs
@@ -57,88 +49,88 @@ namespace ByteSquad
 
                 Graphics g = Graphics.FromImage(imagem);
                 Pen pen = new Pen(Color.Beige, 2);
-
-                // Analisar cada blob encontrado
-                FormasPossiveis tipoDetectado = FormasPossiveis.Desconhecida;
                 SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
 
-                //Debug: Desenha os blobs encontrados
-                Console.WriteLine($"Total de blobs encontrados: {blobs.Length}");
+                IForma melhorForma = new FormaDesconhecida(0, 0, new Vector2(0, 0));
+                int maiorArea = 0;
 
+                // 5. Analisar cada blob detectado e identificar a forma geométrica
                 foreach (Blob blob in blobs)
                 {
-                    Console.WriteLine($"Processando blob ID: {blob.ID} | Tamanho: {blob.Rectangle.Width}x{blob.Rectangle.Height}");
-
                     List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blob);
-                    Console.WriteLine($"Pontos de contorno: {edgePoints.Count}");
-
                     List<System.Drawing.Point> pontos = new List<System.Drawing.Point>();
                     foreach (IntPoint p in edgePoints)
                         pontos.Add(new System.Drawing.Point(p.X, p.Y));
 
                     List<IntPoint> corners;
+                    FormasPossiveis tipoDetectado = FormasPossiveis.Desconhecida;
+
                     if (shapeChecker.IsCircle(edgePoints))
                     {
-                        Console.WriteLine("Circulo detectado!");
-                        g.DrawPolygon(pen, pontos.ToArray());
                         tipoDetectado = FormasPossiveis.Circulo;
-                        break;
                     }
                     else if (shapeChecker.IsConvexPolygon(edgePoints, out corners))
                     {
-                        Console.WriteLine($"Poligono Convexo com {corners.Count} vertices");
-
-                        g.DrawPolygon(pen, pontos.ToArray());
-
                         if (corners.Count == 3)
                         {
-                            Console.WriteLine(" Triangulo detectado!");
                             tipoDetectado = FormasPossiveis.Triangulo;
-                            break;
                         }
                         else if (corners.Count == 4)
                         {
-                            Console.WriteLine(" Quadrado ou Retangulo detectado!");
-                            tipoDetectado = FormasPossiveis.Quadrado;
-                            break;
+                            var subtipo = shapeChecker.CheckPolygonSubType(corners);
+                            if (subtipo == PolygonSubType.Square)
+                                tipoDetectado = FormasPossiveis.Quadrado;
+                            else if (subtipo == PolygonSubType.Rectangle)
+                                tipoDetectado = FormasPossiveis.Retangulo;
                         }
-                        else
+                    }
+
+                    if (tipoDetectado != FormasPossiveis.Desconhecida)
+                    {
+                        Rectangle rect = blob.Rectangle;
+                        int largura = rect.Width;
+                        int altura = rect.Height;
+                        int area = largura * altura;
+                        Vector2 centro = new Vector2(rect.X + largura / 2, rect.Y + altura / 2);
+
+                        IForma forma = tipoDetectado switch
                         {
-                            Console.WriteLine(" Polígono com mais de 4 lados detectado");
+                            FormasPossiveis.Circulo => new FormaCirculo(largura, altura, centro),
+                            FormasPossiveis.Triangulo => new FormaTriangulo(largura, altura, centro),
+                            FormasPossiveis.Quadrado => new FormaQuadrado(largura, altura, centro),
+                            FormasPossiveis.Retangulo => new FormaRetangulo(largura, altura, centro),
+                            _ => null
+                        };
+
+                        if (forma != null && area > maiorArea)
+                        {
+                            maiorArea = area;
+                            melhorForma = forma;
                         }
+
+                        if (pontos.Count >= 3)
+                            g.DrawPolygon(pen, pontos.ToArray());
                     }
                 }
 
                 g.Dispose();
 
-                // Cria uma instância de forma correspondente à forma detectada
-                IForma forma;
+                // Se não foi encontrada nenhuma forma válida, retorna uma forma desconhecida
+                if (melhorForma is FormaDesconhecida)
+                    melhorForma = new FormaDesconhecida(100, 100, new Vector2(50, 50));
 
-                switch (tipoDetectado)
-                {
-                    case FormasPossiveis.Circulo:
-                        forma = new FormaCirculo(100, 100, new Vector2(50, 50));
-                        break;
-                    case FormasPossiveis.Quadrado:
-                        forma = new FormaQuadrado(100, 100, new Vector2(50, 50));
-                        break;
-                    case FormasPossiveis.Triangulo:
-                        forma = new FormaTriangulo(100, 100, new Vector2(50, 50));
-                        break;
-                    default:
-                        forma = new FormaDesconhecida(100, 100, new Vector2(50, 50));
-                        break;
-                }
+                // Define a data de deteção da forma
+                melhorForma.DataDeteccao = DateTime.Now;
 
+                // Desenha o contorno da melhor forma detectada
                 return new ResultadoDeteccao
                 {
-                    FormaDetectada = forma,
+                    FormaDetectada = melhorForma,
                     ImagemComContorno = imagem
                 };
             }
         }
 
-        // Representa o resultado da detecção de formas.
         public class ResultadoDeteccao
         {
             public IForma FormaDetectada { get; set; }
