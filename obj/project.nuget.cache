@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< Updated upstream
   "dgSpecHash": "QCwSwayMYJw=",
   "success": true,
   "projectFilePath": "C:\\Users\\yin_c\\Desktop\\ByteSquad\\ByteSquad.csproj",
+=======
+  "dgSpecHash": "sKDliQ5Khy8=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\andre\\OneDrive\\Documentos\\GitHub\\ByteSquad\\ByteSquad.csproj",
+>>>>>>> Stashed changes
   "expectedPackageFiles": [],
   "logs": []
 }
