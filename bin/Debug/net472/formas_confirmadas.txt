@@ -1,0 +1,2 @@
+Triangulo (53x150) em <131  235> às 21:47:46 (Cor: Color [A=255, R=132, G=128, B=126])
+Quadrado (360x360) em <180  180> às 21:48:10 (Cor: Color [A=255, R=0, G=33, B=81])

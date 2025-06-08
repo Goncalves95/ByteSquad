@@ -102,6 +102,20 @@ namespace ByteSquad
                             _ => null
                         };
 
+                        if (forma != null)
+                        {
+                            // Extrair região da imagem original (com cor)
+
+                            Bitmap roi = imagemOriginal.Clone(rect, imagemOriginal.PixelFormat);
+
+                            // Calcular e aplicar a cor média
+                            Color corMedia = CalcularCorMedia(roi);
+                            forma.Cor = corMedia;
+
+                            string nomeCor = ObterNomeCorAproximada(corMedia);
+                            Console.WriteLine($"Cor detetada: R={corMedia.R}, G={corMedia.G}, B={corMedia.B} → {nomeCor}");
+                        }
+
                         if (forma != null && area > maiorArea)
                         {
                             maiorArea = area;
@@ -129,8 +143,76 @@ namespace ByteSquad
                     ImagemComContorno = imagem
                 };
             }
+
+            private Color CalcularCorMedia(Bitmap imagem)
+            {
+                long totalR = 0, totalG = 0, totalB = 0;
+                int count = 0;
+
+                for (int y = 0; y < imagem.Height; y++)
+                {
+                    for (int x = 0; x < imagem.Width; x++)
+                    {
+                        Color pixel = imagem.GetPixel(x, y);
+                        totalR += pixel.R;
+                        totalG += pixel.G;
+                        totalB += pixel.B;
+                        count++;
+                    }
+                }
+
+                if (count == 0) return Color.Black;
+
+                return Color.FromArgb((int)(totalR / count), (int)(totalG / count), (int)(totalB / count));
+            }
+            
+            private string ObterNomeCorAproximada(Color cor)
+            {
+                // Lista de cores base com nome e valores RGB
+                var coresBase = new Dictionary<string, Color>
+                {
+                    { "Vermelho", Color.FromArgb(255, 0, 0) },
+                    { "Verde", Color.FromArgb(0, 255, 0) },
+                    { "Azul", Color.FromArgb(0, 0, 255) },
+                    { "Amarelo", Color.FromArgb(255, 255, 0) },
+                    { "Ciano", Color.FromArgb(0, 255, 255) },
+                    { "Roxo", Color.FromArgb(128, 0, 128) },
+                    { "Laranja", Color.FromArgb(255, 165, 0) },
+                    { "Rosa", Color.FromArgb(255, 192, 203) },
+                    { "Branco", Color.FromArgb(255, 255, 255) },
+                    { "Preto", Color.FromArgb(0, 0, 0) },
+                    { "Cinza", Color.FromArgb(128, 128, 128) },
+                    { "Azul escuro", Color.FromArgb(0, 33, 81) }
+                };
+
+                string corMaisProxima = "Cor indefinida";
+                double menorDistancia = double.MaxValue;
+
+                foreach (var par in coresBase)
+                {
+                    
+                    Color baseColor = par.Value;
+
+                    double distancia = Math.Sqrt(
+                    Math.Pow(cor.R - baseColor.R, 2) +
+                    Math.Pow(cor.G - baseColor.G, 2) +
+                    Math.Pow(cor.B - baseColor.B, 2)
+                );
+
+                    if (distancia < menorDistancia)
+                    {
+                        menorDistancia = distancia;
+                        corMaisProxima = par.Key;
+                    }
+                }
+
+                return corMaisProxima;
+            }
+
+
         }
 
+        // Resultado da detecção de formas, contendo a forma detectada e a imagem com o contorno desenhado
         public class ResultadoDeteccao
         {
             public IForma FormaDetectada { get; set; }

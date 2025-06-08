@@ -3,6 +3,7 @@
 // =========================
 using System;
 using System.Numerics;
+using System.Drawing;
 
 namespace ByteSquad.Model
 {
@@ -14,6 +15,8 @@ namespace ByteSquad.Model
         DateTime DataDeteccao { get; set; }
 
         FormasPossiveis TipoForma { get; }
+
+        Color Cor { get; set; } 
 
         IForma Clone();
         string ToString();

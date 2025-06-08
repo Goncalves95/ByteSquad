@@ -20,6 +20,29 @@ Para configurar o ambiente de desenvolvimento local, siga os passos abaixo.
 - **Visual Studio:** Certifique-se de ter o [Visual Studio](https://visualstudio.microsoft.com/) instalado, com suporte para C#, .NET, e desenvolvimento para Windows Forms.
 - **Ambiente de Desenvolvimento:** Recomendamos usar o Visual Studio para facilitar o desenvolvimento e depuração do projeto.
 
+## Funcionalidades
+
+- Captura de imagem em tempo real com webcam.
+- Processamento de imagem para detetar a **melhor forma visível** no frame.
+- Identificação de **círculo, triângulo, quadrado ou retângulo**.
+- Detecção e nomeação aproximada da **cor predominante** da forma.
+- Registo das formas detetadas e confirmadas em ficheiros `.txt`.
+- Capacidade de carregar formas anteriores detetadas ou confirmadas.
+- Interface Gráfica desenvolvida com **Windows Forms** (WinForms).
+- Arquitetura baseada em **MVC (Model-View-Controller)**.
+
+## Como executar
+
+-Abrir no Visual Studio e compilar o projeto.
+-Executar: A aplicação abrirá a webcam e começará a processar os frames.
+
+## Observações
+
+-Certifique-se de que a sua webcam está funcional e conectada.
+-As imagens processadas são guardadas como debug_binarizada.bmp para efeitos de debug.
+-Os ficheiros .txt armazenam as formas detetadas e confirmadas.
+
+
 ### Instalando
 
 1. **Clone o repositório:**
