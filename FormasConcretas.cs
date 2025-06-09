@@ -1,5 +1,5 @@
 // =========================
-// FormasConcretas.cs
+// FormasConcretas.cs (parte do componente Model)
 // =========================
 using System.Numerics;
 using System;
@@ -25,7 +25,6 @@ namespace ByteSquad.Model
             DataDeteccao = this.DataDeteccao
         };
     }
-
     public class FormaQuadrado : FormaBase
     {
         public override FormasPossiveis TipoForma => FormasPossiveis.Quadrado;
